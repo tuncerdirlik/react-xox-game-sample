@@ -7,7 +7,7 @@ function App() {
   const [games, setGames] = useState([]);
   const [mark, setMark] = useState("X");
   const [message, setMessage] = useState("");
-  const [isGameFinished, SetIsGameFinished] = useState(false);
+  const [isGameFinished, setIsGameFinished] = useState(false);
   const [gameMove, setGameMove] = useState([]);
 
   useEffect(() => {
@@ -15,103 +15,64 @@ function App() {
   }, []);
 
   const newGame = () => {
-    setGames([
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ]);
-
-    SetIsGameFinished(false);
+    setGames(Array(9).fill(""));
+    setIsGameFinished(false);
     setMark("X");
     setMessage("Hamle Sırası: " + mark);
     setGameMove([]);
   }
 
   const markGame = (index) => {
-
-    const newGames = [...games];
-    if (isGameFinished || newGames[index] !== "") {
+    if (isGameFinished || games[index] !== "") {
       return;
     }
 
+    const newGames = [...games];
     newGames[index] = mark;
-
-
     setGames(newGames);
-    setGameMove((val) => [...val, newGames]);
+    setGameMove([...gameMove, newGames]);
 
     if (isGameOver(newGames)) {
       return;
     }
 
     if (isMoveFinished(newGames)) {
-      SetIsGameFinished(true);
+      setIsGameFinished(true);
       setMessage("Oyun berabere");
       return;
     }
 
-    mark === "X" ? setMark("O") : setMark("X");
-    setMessage("Hamle Sırası: " + (mark === "X" ? "O" : "X"));
-
-
-  }
+    setMark(mark === "X" ? "O" : "X");
+    setMessage(`Hamle Sırası: ${mark === "X" ? "O" : "X"}`);
+  };
 
   const isGameOver = (newGames) => {
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
 
-    let isFinished = false;
-
-    if (newGames[0] !== "" && newGames[0] === newGames[1] && newGames[0] === newGames[2]) {
-      isFinished = true;
-    }
-    else if (newGames[3] !== "" && newGames[3] === newGames[4] && newGames[3] === newGames[5]) {
-      isFinished = true;
-    }
-    else if (newGames[6] !== "" && newGames[6] === newGames[7] && newGames[6] === newGames[8]) {
-      isFinished = true;
-    }
-    else if (newGames[0] !== "" && newGames[0] === newGames[3] && newGames[0] === newGames[6]) {
-      isFinished = true;
-    }
-    else if (newGames[1] !== "" && newGames[1] === newGames[4] && newGames[1] === newGames[7]) {
-      isFinished = true;
-    }
-    else if (newGames[2] !== "" && newGames[2] === newGames[5] && newGames[2] === newGames[8]) {
-      isFinished = true;
-    }
-    else if (newGames[0] !== "" && newGames[0] === newGames[4] && newGames[0] === newGames[8]) {
-      isFinished = true;
-    }
-    else if (newGames[2] !== "" && newGames[2] === newGames[4] && newGames[2] === newGames[6]) {
-      isFinished = true;
-    }
-
-    if (isFinished) {
-      SetIsGameFinished(true);
-      setMessage("Oyunu Kazanan: " + (mark));
-    }
-
-    return isFinished;
-  }
-
-  const isMoveFinished = (newGames) => {
-
-    let emptyCount = 0;
-
-    for (let i = 0; i < newGames.length; i++) {
-      const element = newGames[i];
-      if (element === "") {
-        emptyCount++;
+    for (let i = 0; i < winningConditions.length; i++) {
+      const [a, b, c] = winningConditions[i];
+      if (newGames[a] && newGames[a] === newGames[b] && newGames[a] === newGames[c]) {
+        setIsGameFinished(true);
+        setMessage(`Oyunu Kazanan: ${mark}`);
+        return true;
       }
     }
 
-    return emptyCount === 0;
-  }
+    return false;
+  };
+
+  const isMoveFinished = (newGames) => {
+    return newGames.every((game) => game !== "");
+  };
 
   const setThatGameMove = (game) => {
     setGames(game);
